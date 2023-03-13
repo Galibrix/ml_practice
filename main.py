@@ -1,4 +1,4 @@
-from typing import List, Tuple, TypeVar
+from typing import List, Tuple, TypeVar, NamedTuple
 from collections import Counter
 import matplotlib.pyplot as plt
 import math
@@ -55,3 +55,18 @@ def majority_vote(genders: list[str]) -> str:
     else:
         majority_vote(genders[:-1])
 
+class Labeled_point(NamedTuple):
+    gender: str
+    point: Vector
+
+
+def knn_classifier(k: int, labeled_points: pd.DataFrame, new_point: Vector) -> str:
+    labeled_points = [Labeled_point(gender, [income, exp])
+                      for income, exp, gender in zip(labeled_points['Annual Income ($)'],
+                                                     labeled_points['Work Experience'],
+                                                     labeled_points['Gender'])]
+    by_distance = sorted(labeled_points, key=lambda lp: distance(lp.point, new_point))
+    k_nearest_genders = [lp.gender for lp in by_distance[:k]]
+    return majority_vote(k_nearest_genders)
+
+print(knn_classifier(5, data, [150, 6]))
